@@ -13,9 +13,14 @@ namespace ПингПонг
 {
     public partial class Form1 : Form
     {
+        static Form1 thisForm;
         Ball ball;
         static Sprite pl1;
         static Sprite pl2;
+        static int Score1;
+        static int Score2;
+        static bool Started = false;
+
         public Form1()
         {
 
@@ -25,7 +30,42 @@ namespace ПингПонг
             pl1 = new Sprite(30, Game.Height / 2, 3, 40);
             pl2 = new Sprite(Game.Width - 35, Game.Height / 2, 3, 40);
             ball = new Ball(Game);
+            thisForm = this;
+            thisForm.Update();
         }
+
+        public void StartGame ( ) 
+        {
+         Score1 = 0;
+         Score2 = 0;
+         Random rnd = new Random();
+            int var = rnd.Next(1, 5);
+            switch (var)
+            {
+               case 1:
+                  ball.vy = 0.1;
+                  ball.vx = 0.1;
+                  break;
+               case 2:
+                  ball.vy = -0.1;
+                  ball.vx = 0.1;
+                  break;
+               case 3:
+                  ball.vy = 0.1;
+                  ball.vx = -0.1;
+                  break;
+               case 4:
+                  ball.vy = -0.1;
+                  ball.vx = -0.1;
+                  break;
+            }
+            thisForm.Spl1.Text = "0";
+            thisForm.Spl2.Text = "0";
+            ball.x = Game.Width / 2;
+            ball.y = Game.Height / 2;
+            Started = true;
+            thisForm.Update();
+      }
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -60,60 +100,105 @@ namespace ПингПонг
         class Ball
         {
             public double x, y, vx = 0.1, vy = 0.1, h, w, speed = 0.1, jumpforce = 1;
+            bool d = false, u = false;
             double cx, cy;
             public Ball(PictureBox pb) 
             {
-                x = pb.Height / 2;
+                x = pb.Width / 2;
                 y = pb.Height / 2;
+                vy = 0;
+                vx = 0;
             }
             public void print(Graphics g,PictureBox pa)
             {
-                Pen p = new Pen(Color.Red, 2);
-                g.DrawEllipse(p, (float)x, (float)y, (float)10, (float)10);
+                Pen p = new Pen(Color.Black, 2);
+                g.FillEllipse(p.Brush, (float)x, (float)y, (float)10, (float)10);
+            }
 
-            }
-            public void update()
+            public void update ( )
             {
-                x += vx + 0.001;
-                y += vy + 0.0010;
-                cx = x + 5;
-                cy = y + 5;
+               if (Started)
+               {
+                  if (u == true) up();
+                  if (d == true) down();
+                  if (vx < 0) vx -= 0.00001;
+                  else vx += 0.00001;
+                  x += vx;
+                   y += vy + 0;
+                   cx = x + 5;
+                   cy = y + 5;
+               }
             }
-            public void collis(PictureBox ga)
+            public void up ()
+            {
+               speed += 0.000001;
+               vy = -speed;
+         }
+            public void down ()
+            {
+               speed += 0.000001;
+               vy = speed;
+            }
+         public void collis(PictureBox ga)
             {
                 
                 if (y <= ga.Top - 65)
                 {
-                    vy = -vy;
+                  u = false;
+                  d = true;
                 }
                 if (x >= ga.Right - 15)
                 {
-                    vx = -vx;
+                  Score1++;
+                  thisForm.Spl1.Text = Score1.ToString();
+                  x = thisForm.Game.Width / 2;
+                  y = thisForm.Game.Height / 2;
+                  vx = vy = 0.1; //speed = 0.1;
+                  thisForm.Update();
                 }
                 if (y >= ga.Bottom - 75)
                 {
-                    vy = -vy;
+                     d = false;
+                     u = true;
                 }
                 if (x <= ga.Left)
                 {
-                    vx = -vx;
-                }
-               if (cx - 5 <= pl1.x + pl1.w && cy <= pl1.y + pl1.h && cy >= pl1.y)
-                {
-                    vx = -vx;
-                }
-                if (cx + 5 >= pl2.x + pl2.w && cy <= pl2.y + pl2.h && cy >= pl2.y)
-                {
-                    vx = -vx;
-                }
+                    Score2++;
+                    thisForm.Spl2.Text = Score2.ToString();
+                    x = thisForm.Game.Width / 2;
+                    y = thisForm.Game.Height / 2;
+                    vx = vy = 0.1;//speed = 0.1;
+                    thisForm.Update();
             }
+
+
+				if (cx - 5 <= pl1.x + w && cx + 5 >= pl1.x && cy - 5 <= pl1.y + pl1.h && cy + 5 >= pl1.y)
+				{
+					vx = -vx;
+				}
+				if (cx + 5 >= pl2.x && cx - 5 <= pl2.x + pl2.w && cy - 5 <= pl2.y + pl2.h && cy + 5 >= pl2.y)
+				{
+					vx = -vx;
+				}
+
+            if ((cy + 5 >= pl1.y || cy - 5 <= pl1.y + pl2.h) && cx >= pl1.x + pl1.w && cx <= pl1.x)
+            {
+               vx = -vx;
+               vy = -vy;
+            }
+
+            if ((cy + 5 >= pl2.y || cy - 5 <= pl2.y + pl2.h) && cx >= pl2.x + pl2.w && cx <= pl2.x)
+				{
+					vx = -vx;
+					vy = -vy;
+				}
+
+			}
         }
-
-
 
         class Sprite
         {
-            public double x = 0, y = 0, vx = 0, vy = 0.001, h, w, speed = 0.1, jumpforce = 1;
+            public double x = 0, y = 0, vx = 0, vy = 0.001, h, w, speed = 0.2, jumpforce = 1;
             public bool u = false, d = false;
             public Sprite(double x, double y, double w, double h)
             {
@@ -160,15 +245,23 @@ namespace ПингПонг
                     d = false;
                     vy = 0;
                 }
-                //if ((y <= sp.y + h + 1 && y >= sp.y) && (Math.Abs(x - sp.x) < sp.w)) u = false;
-                //if ((y + h >= sp.y - 1 && y <= sp.y + h) && (Math.Abs(x - sp.x) < sp.w))
-                //{
-                //    d = false;
-                //    vy = 0;
-                //}
             }
         }
 
-    }
+		private void button2_Click ( object sender, EventArgs e )
+		{
+         StartGame();
+		}
+
+		private void Form1_Shown ( object sender, EventArgs e )
+		{
+         thisForm.Update();
+		}
+
+		private void button1_Click ( object sender, EventArgs e )
+		{
+         StartGame();
+      }
+	}
 }
 

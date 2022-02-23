@@ -75,6 +75,7 @@ namespace ПингПонг
 			this.button1.TabIndex = 4;
 			this.button1.Text = "Restart";
 			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// button2
 			// 
@@ -84,6 +85,7 @@ namespace ПингПонг
 			this.button2.TabIndex = 5;
 			this.button2.Text = "Start";
 			this.button2.UseVisualStyleBackColor = true;
+			this.button2.Click += new System.EventHandler(this.button2_Click);
 			// 
 			// Game
 			// 
@@ -107,6 +109,7 @@ namespace ПингПонг
 			this.Controls.Add(this.Score);
 			this.Name = "Form1";
 			this.Text = "Form1";
+			this.Shown += new System.EventHandler(this.Form1_Shown);
 			((System.ComponentModel.ISupportInitialize)(this.Game)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
